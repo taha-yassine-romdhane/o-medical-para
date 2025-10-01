@@ -98,5 +98,5 @@ Ce projet est sous licence MIT - voir le fichier [LICENSE](LICENSE) pour plus de
 ---
 
 <div align="center">
-  Développé avec ❤️ par [Votre Nom] - © 2025 O'Medical
+  Développé avec ❤️ par [Taha Yassine Romdhane](https://taha-yassine-romdhane.github.io) - © 2025 O'Medical
 </div>
