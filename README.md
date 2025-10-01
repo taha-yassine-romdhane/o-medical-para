@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# O'Medical - Plateforme de Parapharmacie en Ligne
 
-## Getting Started
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
-First, run the development server:
+O'Medical est une plateforme e-commerce moderne pour une parapharmacie tunisienne, développée avec Next.js, PostgreSQL et Prisma. Cette application offre une expérience d'achat en ligne fluide pour les produits de parapharmacie, avec des fonctionnalités avancées pour les clients et les administrateurs.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## ✨ Fonctionnalités
+
+- **Interface utilisateur moderne et réactive**
+- **Catalogue de produits complet** avec filtres avancés
+- **Gestion des commandes** en temps réel
+- **Espace client** avec historique des commandes
+- **Tableau de bord administrateur** complet
+- **Système d'authentification** sécurisé
+- **Paiement en ligne** (à venir)
+- **Gestion des stocks** en temps réel
+
+## 🚀 Technologies Utilisées
+
+- **Frontend**: Next.js 14, React 18, TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes
+- **Base de données**: PostgreSQL avec Prisma ORM
+- **Authentification**: NextAuth.js
+- **Déploiement**: Vercel
+- **Autres**: React Hook Form, Zod pour la validation, React Hot Toast pour les notifications
+
+## 🛠 Installation
+
+1. **Cloner le dépôt**
+   ```bash
+   git clone https://github.com/taha-yassine-romdhane/o-medical-para.git
+   cd o-medical-para
+   ```
+
+2. **Installer les dépendances**
+   ```bash
+   npm install
+   # ou
+   yarn install
+   ```
+
+3. **Configurer les variables d'environnement**
+   Créez un fichier `.env` à la racine du projet et ajoutez les variables nécessaires (voir `.env.example`)
+
+4. **Migrations de la base de données**
+   ```bash
+   npx prisma migrate dev
+   ```
+
+5. **Lancer l'application en mode développement**
+   ```bash
+   npm run dev
+   # ou
+   yarn dev
+   ```
+
+   L'application sera disponible à l'adresse [http://localhost:3000](http://localhost:3000)
+
+## 📁 Structure du Projet
+
+```
+src/
+├── app/                  # Routes de l'application
+├── components/           # Composants réutilisables
+├── lib/                  # Utilitaires et configurations
+├── prisma/               # Schémas et migrations Prisma
+├── public/               # Fichiers statiques
+└── types/                # Définitions TypeScript
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🌍 Environnements
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Développement**: `http://localhost:3000`
+- **Production**: [À définir]
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🤝 Contribution
 
-## Learn More
+Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou une pull request.
 
-To learn more about Next.js, take a look at the following resources:
+1. Forkez le projet
+2. Créez votre branche (`git checkout -b feature/AmazingFeature`)
+3. Committez vos changements (`git commit -m 'Add some AmazingFeature'`)
+4. Poussez vers la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrez une Pull Request
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📄 Licence
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Ce projet est sous licence MIT - voir le fichier [LICENSE](LICENSE) pour plus de détails.
 
-## Deploy on Vercel
+## 📞 Contact
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Email**: [votre-email@example.com](mailto:votre-email@example.com)
+- **Site Web**: [omedical-para.tn](https://omedical-para.tn)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+<div align="center">
+  Développé avec ❤️ par [Votre Nom] - © 2025 O'Medical
+</div>
