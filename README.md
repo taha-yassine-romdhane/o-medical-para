@@ -57,7 +57,7 @@ O'Medical est une plateforme e-commerce moderne pour une parapharmacie tunisienn
    yarn dev
    ```
 
-   L'application sera disponible à l'adresse [http://localhost:3000](http://localhost:3000)
+   L'application sera disponible Sur Port 3000 as default 
 
 ## 📁 Structure du Projet
 
