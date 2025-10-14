@@ -10,18 +10,18 @@ const TopBar = () => {
   const slides = [
     {
       icon: Phone,
-      text: '+216 123 456 789',
-      color: '#7ED321'
+      text: '+216 53 000 666',
+      color: '#2D5016'
     },
     {
       icon: Mail,
       text: 'contact@omedical-para.tn',
-      color: '#7ED321'
+      color: '#2D5016'
     },
     {
       icon: Truck,
       text: 'Livraison gratuite dès 50 TND',
-      color: '#7ED321'
+      color: '#2D5016'
     }
   ];
 
@@ -37,9 +37,9 @@ const TopBar = () => {
     <div
       className="border-b"
       style={{
-        background: 'linear-gradient(to right, #2D5016, #3A6B1B, #2D5016)',
-        borderBottomColor: 'rgba(126, 211, 33, 0.3)',
-        color: 'white'
+        background: 'linear-gradient(to right, #6BC318, #7ED321, #6BC318)',
+        borderBottomColor: 'rgba(45, 80, 22, 0.3)',
+        color: '#2D5016'
       }}
     >
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1rem' }}>
@@ -51,18 +51,18 @@ const TopBar = () => {
               <div
                 className="p-2 rounded-full transition-colors"
                 style={{
-                  backgroundColor: 'rgba(126, 211, 33, 0.2)',
+                  backgroundColor: 'rgba(45, 80, 22, 0.15)',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(126, 211, 33, 0.3)';
+                  e.currentTarget.style.backgroundColor = 'rgba(45, 80, 22, 0.25)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(126, 211, 33, 0.2)';
+                  e.currentTarget.style.backgroundColor = 'rgba(45, 80, 22, 0.15)';
                 }}
               >
-                <Phone className="h-4 w-4" style={{ color: '#7ED321' }} />
+                <Phone className="h-4 w-4" style={{ color: '#2D5016' }} />
               </div>
-              <span className="font-medium text-sm">+216 123 456 789</span>
+              <span className="font-medium text-sm">+216 53 000 666</span>
             </div>
 
             {/* Email */}
@@ -70,54 +70,40 @@ const TopBar = () => {
               <div
                 className="p-2 rounded-full transition-colors"
                 style={{
-                  backgroundColor: 'rgba(126, 211, 33, 0.2)',
+                  backgroundColor: 'rgba(45, 80, 22, 0.15)',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(126, 211, 33, 0.3)';
+                  e.currentTarget.style.backgroundColor = 'rgba(45, 80, 22, 0.25)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(126, 211, 33, 0.2)';
+                  e.currentTarget.style.backgroundColor = 'rgba(45, 80, 22, 0.15)';
                 }}
               >
-                <Mail className="h-4 w-4" style={{ color: '#7ED321' }} />
+                <Mail className="h-4 w-4" style={{ color: '#2D5016' }} />
               </div>
               <span className="font-medium">contact@omedical-para.tn</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-8">
-            {/* Free Delivery */}
-            <div className="flex items-center gap-3">
-              <Truck className="h-4 w-4" style={{ color: '#7ED321' }} />
-              <span className="font-semibold text-sm" style={{ color: 'white' }}>
-                Livraison gratuite dès 50 TND
-              </span>
-            </div>
-
-            {/* Help Button */}
-            <Button
-              variant="outline"
-              size="sm"
+          {/* Free Delivery */}
+          <div className="flex items-center gap-3 hover:opacity-90 transition-all duration-200">
+            <div
+              className="p-2 rounded-full transition-colors"
               style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                borderColor: 'rgba(255, 255, 255, 0.2)',
-                color: 'white',
-                padding: '4px 12px',
-                fontSize: '0.75rem'
+                backgroundColor: 'rgba(45, 80, 22, 0.15)',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#7ED321';
-                e.currentTarget.style.borderColor = '#7ED321';
-                e.currentTarget.style.color = 'white';
+                e.currentTarget.style.backgroundColor = 'rgba(45, 80, 22, 0.25)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                e.currentTarget.style.color = 'white';
+                e.currentTarget.style.backgroundColor = 'rgba(45, 80, 22, 0.15)';
               }}
             >
-              Aide
-            </Button>
+              <Truck className="h-4 w-4" style={{ color: '#2D5016' }} />
+            </div>
+            <span className="font-semibold text-sm" style={{ color: '#2D5016' }}>
+              Livraison gratuite dès 50 TND
+            </span>
           </div>
         </div>
 
@@ -142,7 +128,7 @@ const TopBar = () => {
                   style={{
                     padding: '0.375rem',
                     borderRadius: '9999px',
-                    backgroundColor: 'rgba(126, 211, 33, 0.2)',
+                    backgroundColor: 'rgba(45, 80, 22, 0.15)',
                   }}
                 >
                   <IconComponent style={{ width: '0.875rem', height: '0.875rem', color: slide.color }} />

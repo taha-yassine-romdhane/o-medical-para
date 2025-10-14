@@ -12,7 +12,7 @@ const updateFamilySchema = z.object({
 // PUT - Update family
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -21,11 +21,12 @@ export async function PUT(
       return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
     }
 
+    const { id } = await params;
     const body = await request.json();
     const validatedData = updateFamilySchema.parse(body);
 
     const existingFamily = await prisma.family.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existingFamily) {
@@ -44,7 +45,7 @@ export async function PUT(
       .replace(/(^-|-$)/g, '');
 
     const family = await prisma.family.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name: validatedData.name,
         slug,
@@ -87,7 +88,7 @@ export async function PUT(
 // DELETE - Delete family
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -96,8 +97,9 @@ export async function DELETE(
       return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
     }
 
+    const { id } = await params;
     const existingFamily = await prisma.family.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         _count: {
           select: {
@@ -123,7 +125,7 @@ export async function DELETE(
     }
 
     await prisma.family.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json(

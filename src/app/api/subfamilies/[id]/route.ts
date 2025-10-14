@@ -12,7 +12,7 @@ const updateSubfamilySchema = z.object({
 // PUT - Update subfamily
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -21,11 +21,12 @@ export async function PUT(
       return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
     }
 
+    const { id } = await params;
     const body = await request.json();
     const validatedData = updateSubfamilySchema.parse(body);
 
     const existingSubfamily = await prisma.subfamily.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existingSubfamily) {
@@ -44,7 +45,7 @@ export async function PUT(
       .replace(/(^-|-$)/g, '');
 
     const subfamily = await prisma.subfamily.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name: validatedData.name,
         slug,
@@ -86,7 +87,7 @@ export async function PUT(
 // DELETE - Delete subfamily
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -95,8 +96,9 @@ export async function DELETE(
       return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
     }
 
+    const { id } = await params;
     const existingSubfamily = await prisma.subfamily.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         _count: {
           select: {
@@ -121,7 +123,7 @@ export async function DELETE(
     }
 
     await prisma.subfamily.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json(

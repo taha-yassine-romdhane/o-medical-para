@@ -1,8 +1,45 @@
 'use client';
 
 import { Shield, Truck, HeadphonesIcon, Clock } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 const FeaturesSection = () => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
+
+    let scrollInterval: NodeJS.Timeout;
+    let currentIndex = 0;
+
+    const startAutoScroll = () => {
+      scrollInterval = setInterval(() => {
+        const cardWidth = scrollContainer.querySelector('div')?.offsetWidth || 0;
+        const gap = 16; // 1rem = 16px
+
+        currentIndex++;
+        if (currentIndex >= features.length) {
+          currentIndex = 0;
+        }
+
+        scrollContainer.scrollTo({
+          left: currentIndex * (cardWidth + gap),
+          behavior: 'smooth'
+        });
+      }, 3000); // Change card every 3 seconds
+    };
+
+    // Only auto-scroll on mobile
+    if (window.innerWidth < 1024) {
+      startAutoScroll();
+    }
+
+    return () => {
+      if (scrollInterval) clearInterval(scrollInterval);
+    };
+  }, []);
+
   const features = [
     {
       icon: Truck,
@@ -27,22 +64,44 @@ const FeaturesSection = () => {
   ];
 
   return (
-    <section
-      className="py-6"
-      style={{
-        background: 'linear-gradient(135deg, rgba(126, 211, 33, 0.02) 0%, rgba(107, 195, 24, 0.04) 100%)',
-        paddingTop: '1.5rem',
-        paddingBottom: '1.5rem'
-      }}
-    >
+    <>
+      <style jsx>{`
+        .features-scroll-container::-webkit-scrollbar {
+          display: none;
+        }
+        .feature-card {
+          min-width: calc(100vw - 3rem);
+          max-width: calc(100vw - 3rem);
+        }
+        @media (min-width: 1024px) {
+          .feature-card {
+            min-width: auto;
+            max-width: none;
+          }
+        }
+      `}</style>
+      <section
+        className="py-6"
+        style={{
+          background: 'linear-gradient(135deg, rgba(126, 211, 33, 0.02) 0%, rgba(107, 195, 24, 0.04) 100%)',
+          paddingTop: '1.5rem',
+          paddingBottom: '1.5rem'
+        }}
+      >
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1.5rem' }}>
         <div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+          ref={scrollRef}
+          className="lg:grid lg:grid-cols-4 lg:gap-4 features-scroll-container"
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+            display: 'flex',
+            overflowX: 'auto',
             gap: '1rem',
-            alignItems: 'center'
+            alignItems: 'center',
+            scrollBehavior: 'smooth',
+            WebkitOverflowScrolling: 'touch',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            scrollSnapType: 'x mandatory'
           }}
         >
           {features.map((feature, index) => {
@@ -50,7 +109,7 @@ const FeaturesSection = () => {
             return (
               <div
                 key={index}
-                className="flex items-center justify-center p-4 rounded-lg transition-all duration-300"
+                className="flex items-center justify-center p-4 rounded-lg transition-all duration-300 feature-card"
                 style={{
                   backgroundColor: 'white',
                   borderRadius: '0.75rem',
@@ -64,7 +123,9 @@ const FeaturesSection = () => {
                   transition: 'all 0.3s ease',
                   transform: 'translateY(0)',
                   cursor: 'pointer',
-                  minHeight: '80px'
+                  minHeight: '80px',
+                  flexShrink: 0,
+                  scrollSnapAlign: 'start'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-2px)';
@@ -131,6 +192,7 @@ const FeaturesSection = () => {
         </div>
       </div>
     </section>
+    </>
   );
 };
 

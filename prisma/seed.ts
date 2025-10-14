@@ -66,6 +66,28 @@ async function main() {
     console.log(`Created/Updated category: ${created.name}`);
   }
 
+  // Create "Divers" (Miscellaneous) family under Matériel Médical
+  const materielMedicalCategory = await prisma.category.findUnique({
+    where: { slug: 'materiel-medical' },
+  });
+
+  if (materielMedicalCategory) {
+    const diversFamily = await prisma.family.upsert({
+      where: { reference: 'DV' },
+      update: {},
+      create: {
+        reference: 'DV',
+        name: 'Divers',
+        slug: 'divers',
+        description: 'Produits divers et matériel médical non classifié',
+        isActive: true,
+        sortOrder: 999,
+        categoryId: materielMedicalCategory.id,
+      },
+    });
+    console.log(`Created/Updated family: ${diversFamily.name} (${diversFamily.reference})`);
+  }
+
   console.log('Seeding finished.');
 }
 

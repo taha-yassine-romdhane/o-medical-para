@@ -10,6 +10,36 @@ const familySchema = z.object({
   description: z.string().optional(),
 });
 
+// GET - Fetch all families
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const categoryId = searchParams.get('categoryId');
+
+    const families = await prisma.family.findMany({
+      where: categoryId ? { categoryId } : undefined,
+      orderBy: { name: 'asc' },
+      include: {
+        category: true,
+        _count: {
+          select: {
+            products: true,
+            subfamilies: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({ families }, { status: 200 });
+  } catch (error) {
+    console.error('Error fetching families:', error);
+    return NextResponse.json(
+      { error: 'Une erreur est survenue lors de la récupération des familles' },
+      { status: 500 }
+    );
+  }
+}
+
 // POST - Create new family
 export async function POST(request: Request) {
   try {

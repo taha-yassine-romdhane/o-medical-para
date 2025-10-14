@@ -134,7 +134,7 @@ const CategoriesNav = () => {
                 onMouseLeave={handleMouseLeave}
               >
                 <Link
-                  href={`/categories/${category.slug}`}
+                  href={`/produits?category=${category.slug}`}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -260,7 +260,7 @@ const CategoriesNav = () => {
                 <div key={family.id}>
                   {/* Family Link */}
                   <Link
-                    href={`/categories/${hoveredCategory.slug}/${family.slug}`}
+                    href={`/produits?category=${hoveredCategory.slug}&family=${family.slug}`}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -287,7 +287,7 @@ const CategoriesNav = () => {
                       {family.subfamilies.map((subfamily) => (
                         <Link
                           key={subfamily.id}
-                          href={`/categories/${hoveredCategory.slug}/${family.slug}/${subfamily.slug}`}
+                          href={`/produits?category=${hoveredCategory.slug}&family=${family.slug}&subfamily=${subfamily.slug}`}
                           style={{
                             fontSize: '0.8125rem',
                             color: '#6B7280',
@@ -320,7 +320,7 @@ const CategoriesNav = () => {
 
             {/* View All Link */}
             <Link
-              href={`/categories/${hoveredCategory.slug}`}
+              href={`/produits?category=${hoveredCategory.slug}`}
               style={{
                 display: 'block',
                 textAlign: 'center',

@@ -4,8 +4,13 @@ import { useState, useRef, useEffect } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingCart, User, Heart, Menu, X, Search, LogIn, ChevronDown, Package, LogOut } from 'lucide-react';
+import { ShoppingCart, User, Heart, Menu, X, Search, LogIn, ChevronDown, Package, LogOut, LayoutDashboard } from 'lucide-react';
 import SearchBar from './SearchBar';
+import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/contexts/WishlistContext';
+import Tooltip from '@/components/Tooltip';
+import CartDropdown from '@/components/cart/CartDropdown';
+import WishlistDropdown from '@/components/wishlist/WishlistDropdown';
 
 interface MainNavigationProps {
   isMobileMenuOpen: boolean;
@@ -13,10 +18,13 @@ interface MainNavigationProps {
 }
 
 const MainNavigation = ({ isMobileMenuOpen, setIsMobileMenuOpen }: MainNavigationProps) => {
-  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
+  const [showCartDropdown, setShowCartDropdown] = useState(false);
+  const [showWishlistDropdown, setShowWishlistDropdown] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement>(null);
   const { data: session, status } = useSession();
+  const { getCartCount } = useCart();
+  const { getWishlistCount } = useWishlist();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -36,26 +44,45 @@ const MainNavigation = ({ isMobileMenuOpen, setIsMobileMenuOpen }: MainNavigatio
 
   return (
     <div
-      className="border-b"
-      style={{
-        backgroundColor: 'white',
-        borderBottomColor: 'rgba(74, 74, 74, 0.1)'
-      }}
-    >
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1rem' }}>
+        className="border-b"
+        style={{
+          backgroundColor: 'white',
+          borderBottomColor: 'rgba(74, 74, 74, 0.1)'
+        }}
+      >
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1rem' }}>
         <div
-          className="flex items-center justify-between h-16 sm:h-20"
+          className="flex items-center h-16 sm:h-20 relative"
           style={{
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between'
           }}
         >
-          {/* Logo */}
+          {/* Mobile Menu Button - Left (Mobile only) */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2 rounded-xl transition-all duration-200 z-10"
+            style={{ color: '#4A4A4A' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#7ED321';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#4A4A4A';
+            }}
+          >
+            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+
+          {/* Logo - Centered on Mobile, Left on Desktop */}
           <Link
             href="/"
-            className="shrink-0 transition-transform duration-200 hover:scale-105"
-            style={{ flexShrink: 0 }}
+            className="shrink-0 transition-transform duration-200 hover:scale-105 md:ml-0"
+            style={{
+              flexShrink: 0,
+              position: 'absolute',
+              left: '50%',
+              transform: 'translateX(-50%)',
+            }}
           >
             <Image
               src="/logo/logo-web.png"
@@ -69,9 +96,27 @@ const MainNavigation = ({ isMobileMenuOpen, setIsMobileMenuOpen }: MainNavigatio
             />
           </Link>
 
+          {/* Desktop Logo (hidden on mobile) */}
+          <Link
+            href="/"
+            className="hidden md:block shrink-0 transition-transform duration-200 hover:scale-105 relative"
+            style={{ flexShrink: 0 }}
+          >
+            <Image
+              src="/logo/logo-web.png"
+              alt="Medical Store Parapharmacie"
+              width={240}
+              height={120}
+              quality={100}
+              priority
+              unoptimized
+              className="h-12 w-auto hover:scale-110 transition-all duration-200"
+            />
+          </Link>
+
           {/* Search Bar - Desktop */}
           <div
-            className="hidden md:block"
+            className="hidden md:block order-3 md:order-2"
             style={{
               flex: 1,
               maxWidth: '700px',
@@ -85,26 +130,12 @@ const MainNavigation = ({ isMobileMenuOpen, setIsMobileMenuOpen }: MainNavigatio
 
           {/* Right Actions */}
           <div
-            className="flex items-center gap-1 sm:gap-2"
+            className="flex items-center gap-1 sm:gap-2 order-3"
             style={{ flexShrink: 0, marginLeft: 'auto' }}
           >
-            {/* Search Button - Mobile */}
-            <button
-              onClick={() => setShowMobileSearch(!showMobileSearch)}
-              className="md:hidden flex items-center px-2 py-2 rounded-xl transition-all duration-200"
-              style={{ color: '#4A4A4A' }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#7ED321';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#4A4A4A';
-              }}
-            >
-              <Search className="h-5 w-5" />
-            </button>
-            {/* Account / Login - Hidden on mobile */}
+            {/* Account / Login */}
             {session ? (
-              <div ref={accountMenuRef} style={{ position: 'relative' }} className="hidden sm:block">
+              <div ref={accountMenuRef} style={{ position: 'relative' }}>
                 <button
                   onClick={() => setShowAccountMenu(!showAccountMenu)}
                   className="flex items-center px-3 py-2 rounded-xl transition-all duration-200 group"
@@ -148,6 +179,39 @@ const MainNavigation = ({ isMobileMenuOpen, setIsMobileMenuOpen }: MainNavigatio
                     </div>
 
                     <div style={{ padding: '0.5rem' }}>
+                      {/* Dashboard Link - Only for ADMIN and EMPLOYEE */}
+                      {(session.user.role === 'ADMIN' || session.user.role === 'EMPLOYEE') && (
+                        <Link
+                          href="/dashboard/admin"
+                          onClick={() => setShowAccountMenu(false)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.75rem',
+                            padding: '0.75rem 1rem',
+                            borderRadius: '0.5rem',
+                            fontSize: '0.875rem',
+                            color: 'white',
+                            textDecoration: 'none',
+                            transition: 'all 0.2s',
+                            background: 'linear-gradient(135deg, #7ED321 0%, #6AB81E 100%)',
+                            fontWeight: '600',
+                            marginBottom: '0.5rem',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'linear-gradient(135deg, #6AB81E 0%, #7ED321 100%)';
+                            e.currentTarget.style.transform = 'translateX(4px)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'linear-gradient(135deg, #7ED321 0%, #6AB81E 100%)';
+                            e.currentTarget.style.transform = 'translateX(0)';
+                          }}
+                        >
+                          <LayoutDashboard className="h-4 w-4" />
+                          Tableau de bord
+                        </Link>
+                      )}
+
                       <Link
                         href="/compte"
                         onClick={() => setShowAccountMenu(false)}
@@ -236,7 +300,7 @@ const MainNavigation = ({ isMobileMenuOpen, setIsMobileMenuOpen }: MainNavigatio
             ) : (
               <Link
                 href="/auth/login"
-                className="hidden sm:flex items-center px-3 py-2 rounded-xl transition-all duration-200 group"
+                className="flex items-center px-2 sm:px-3 py-2 rounded-xl transition-all duration-200 group"
                 style={{ color: '#4A4A4A' }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.color = '#7ED321';
@@ -251,76 +315,68 @@ const MainNavigation = ({ isMobileMenuOpen, setIsMobileMenuOpen }: MainNavigatio
             )}
 
             {/* Wishlist */}
-            <Link
-              href="/favoris"
-              className="flex items-center px-2 sm:px-3 py-2 rounded-xl transition-all duration-200 relative group"
-              style={{ color: '#4A4A4A' }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#7ED321';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#4A4A4A';
-              }}
-            >
-              <Heart className="h-5 w-5 group-hover:scale-110 transition-transform" />
-              <span
-                className="absolute -top-2 -right-2 text-[10px] rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-lg text-white border-2 border-white"
-                style={{
-                  background: 'linear-gradient(to right, #7ED321, #6BC318)',
-                  fontSize: '11px'
+            <Tooltip text="Favoris" position="bottom">
+              <button
+                onClick={() => setShowWishlistDropdown(true)}
+                className="flex items-center px-2 sm:px-3 py-2 rounded-xl transition-all duration-200 relative group"
+                style={{ color: '#4A4A4A', background: 'none', border: 'none', cursor: 'pointer' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#DC2626';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#4A4A4A';
                 }}
               >
-                3
-              </span>
-            </Link>
+                <Heart className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                {getWishlistCount() > 0 && (
+                  <span
+                    className="absolute -top-2 -right-2 text-[10px] rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-lg text-white border-2 border-white"
+                    style={{
+                      background: 'linear-gradient(to right, #DC2626, #B91C1C)',
+                      fontSize: '11px'
+                    }}
+                  >
+                    {getWishlistCount()}
+                  </span>
+                )}
+              </button>
+            </Tooltip>
+
+            {/* Wishlist Dropdown */}
+            <WishlistDropdown isOpen={showWishlistDropdown} onClose={() => setShowWishlistDropdown(false)} />
 
             {/* Cart */}
-            <Link
-              href="/panier"
-              className="flex items-center px-2 sm:px-3 py-2 rounded-xl transition-all duration-200 relative group"
-              style={{ color: '#4A4A4A' }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#7ED321';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#4A4A4A';
-              }}
-            >
-              <ShoppingCart className="h-5 w-5 group-hover:scale-110 transition-transform" />
-              <span
-                className="absolute -top-2 -right-2 text-[10px] rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-lg text-white border-2 border-white"
-                style={{
-                  background: 'linear-gradient(to right, #7ED321, #6BC318)',
-                  fontSize: '11px'
+            <Tooltip text="Panier" position="bottom">
+              <button
+                onClick={() => setShowCartDropdown(true)}
+                className="flex items-center px-2 sm:px-3 py-2 rounded-xl transition-all duration-200 relative group"
+                style={{ color: '#4A4A4A', background: 'none', border: 'none', cursor: 'pointer' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#7ED321';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#4A4A4A';
                 }}
               >
-                2
-              </span>
-            </Link>
+                <ShoppingCart className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                {getCartCount() > 0 && (
+                  <span
+                    className="absolute -top-2 -right-2 text-[10px] rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-lg text-white border-2 border-white"
+                    style={{
+                      background: 'linear-gradient(to right, #7ED321, #6BC318)',
+                      fontSize: '11px'
+                    }}
+                  >
+                    {getCartCount()}
+                  </span>
+                )}
+              </button>
+            </Tooltip>
 
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 ml-1 rounded-xl transition-all duration-200"
-              style={{ color: '#4A4A4A' }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#7ED321';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#4A4A4A';
-              }}
-            >
-              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
+            {/* Cart Dropdown */}
+            <CartDropdown isOpen={showCartDropdown} onClose={() => setShowCartDropdown(false)} />
           </div>
         </div>
-
-        {/* Mobile Search Bar - Expandable */}
-        {showMobileSearch && (
-          <div className="md:hidden pb-4 px-2">
-            <SearchBar isMobile={true} />
-          </div>
-        )}
       </div>
     </div>
   );

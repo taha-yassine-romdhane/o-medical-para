@@ -7,16 +7,15 @@ import { ArrowRight, Flame } from "lucide-react";
 interface Product {
   id: string;
   name: string;
-  brand: string;
+  slug: string;
+  reference: string;
   price: number;
-  originalPrice?: number;
-  image: string;
-  rating: number;
-  reviewCount: number;
-  category: string;
+  promoPrice: number | null;
+  isOnPromo: boolean;
   inStock: boolean;
-  isOnSale?: boolean;
-  description: string;
+  stockQuantity: number;
+  brand: { name: string } | null;
+  images: { url: string }[];
 }
 
 interface PromotionsSectionProps {
@@ -24,7 +23,7 @@ interface PromotionsSectionProps {
 }
 
 const PromotionsSection = ({ products }: PromotionsSectionProps) => {
-  const onSaleProducts = products.filter(product => product.isOnSale);
+  const onSaleProducts = products.filter(product => product.isOnPromo);
 
   if (onSaleProducts.length === 0) {
     return null;
@@ -125,31 +124,17 @@ const PromotionsSection = ({ products }: PromotionsSectionProps) => {
               e.currentTarget.style.boxShadow = 'none';
             }}
           >
-            Voir tout <ArrowRight className="h-4 w-4" />
+            <span style={{ whiteSpace: 'nowrap' }}>Voir tout</span> <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
         <div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '1.5rem'
-          }}
+          className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6"
         >
           {onSaleProducts.map((product) => (
             <div
               key={product.id}
-              style={{
-                transform: 'translateY(0)',
-                transition: 'transform 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
+              className="lg:hover:-translate-y-1 transition-transform duration-200"
             >
               <ProductCard product={product} />
             </div>

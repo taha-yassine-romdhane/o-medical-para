@@ -3,8 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Plus, Mail, Shield, Edit, Trash2, Lock, UserCog, Users as UsersIcon } from 'lucide-react';
+import { Plus, Mail, Shield, Edit, Trash2, UserCog, Users as UsersIcon } from 'lucide-react';
 import AddUserModal from '@/components/dashboard/AddUserModal';
 import EditUserModal from '@/components/dashboard/EditUserModal';
 
@@ -131,25 +130,6 @@ export default function UserManagementPage() {
             Nouvel Utilisateur
           </button>
         </div>
-      </div>
-
-      {/* Admin Only Notice */}
-      <div
-        style={{
-          marginBottom: '2rem',
-          padding: '1rem 1.5rem',
-          background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)',
-          border: '1px solid #EF4444',
-          borderRadius: '0.75rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem',
-        }}
-      >
-        <Lock className="h-5 w-5" style={{ color: '#EF4444', flexShrink: 0 }} />
-        <p style={{ fontSize: '0.875rem', color: '#1F2937', fontWeight: '500' }}>
-          Cette page permet de gérer les administrateurs et employés uniquement. Les clients sont gérés dans la section "Clients".
-        </p>
       </div>
 
       {/* Users Table */}

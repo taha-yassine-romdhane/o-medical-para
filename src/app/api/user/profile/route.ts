@@ -36,6 +36,7 @@ export async function GET() {
         region: true,
         dateOfBirth: true,
         gender: true,
+        fidelityPoints: true,
         createdAt: true,
         addresses: {
           orderBy: { id: 'desc' },
@@ -52,6 +53,43 @@ export async function GET() {
     console.error('Error fetching user profile:', error);
     return NextResponse.json(
       { error: 'Une erreur est survenue lors de la récupération du profil' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const session = await auth();
+
+    if (!session || !session.user) {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { firstName, lastName, phone, region, dateOfBirth, gender } = body;
+
+    const whereClause = session.user.id
+      ? { id: session.user.id }
+      : { email: session.user.email! };
+
+    const user = await prisma.user.update({
+      where: whereClause,
+      data: {
+        firstName,
+        lastName,
+        phone,
+        region,
+        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+        gender,
+      },
+    });
+
+    return NextResponse.json({ user }, { status: 200 });
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    return NextResponse.json(
+      { error: 'Une erreur est survenue lors de la mise à jour du profil' },
       { status: 500 }
     );
   }

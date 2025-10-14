@@ -3,21 +3,22 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Heart, ShoppingCart, Star, Eye, Percent, Package } from 'lucide-react';
+import { Heart, ShoppingCart, Eye, Percent, Package } from 'lucide-react';
+import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/contexts/WishlistContext';
 
 interface Product {
   id: string;
   name: string;
-  brand: string;
+  slug: string;
+  reference: string;
   price: number;
-  originalPrice?: number;
-  image: string;
-  rating: number;
-  reviewCount: number;
-  category: string;
+  promoPrice: number | null;
+  isOnPromo?: boolean;
   inStock: boolean;
-  isOnSale?: boolean;
-  description: string;
+  stockQuantity: number;
+  brand: { name: string } | null;
+  images: { url: string }[];
 }
 
 interface ProductCardProps {
@@ -25,18 +26,66 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const isWishlisted = isInWishlist(product.id);
 
-  const discountPercentage = product.originalPrice
-    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+  const discountPercentage = product.promoPrice
+    ? Math.round(((product.price - product.promoPrice) / product.price) * 100)
     : 0;
 
+  const displayPrice = product.promoPrice || product.price;
+  const originalPrice = product.promoPrice ? product.price : null;
+  const productImage = product.images && product.images.length > 0 ? product.images[0].url : null;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart({
+      id: product.id,
+      productId: product.id,
+      name: product.name,
+      slug: product.slug,
+      price: product.price,
+      promoPrice: product.promoPrice,
+      image: productImage,
+      brand: product.brand?.name || null,
+      inStock: product.inStock,
+      stockQuantity: product.stockQuantity,
+    });
+  };
+
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isWishlisted) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist({
+        id: product.id,
+        productId: product.id,
+        name: product.name,
+        slug: product.slug,
+        price: product.price,
+        promoPrice: product.promoPrice,
+        image: productImage,
+        brand: product.brand?.name || null,
+        inStock: product.inStock,
+      });
+    }
+  };
+
+  // Get placeholder icon
+  const getPlaceholderIcon = () => {
+    return <Package className="h-24 w-24 mx-auto" style={{ color: '#7ED321' }} strokeWidth={1.5} />;
+  };
+
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('fr-DZ', {
+    return new Intl.NumberFormat('fr-TN', {
       style: 'currency',
-      currency: 'DZD',
+      currency: 'TND',
       minimumFractionDigits: 0,
     }).format(price);
   };
@@ -49,23 +98,33 @@ const ProductCard = ({ product }: ProductCardProps) => {
     >
       <div className="relative overflow-hidden rounded-t-lg">
         {/* Product Image */}
-        <Link href={`/produit/${product.id}`}>
+        <Link href={`/produits/${product.slug}`}>
           <div className="aspect-square bg-gradient-to-br from-green-50 via-gray-50 to-green-100 relative">
-            {!imageError && product.image ? (
+            {!imageError && productImage ? (
               <Image
-                src={product.image}
+                src={productImage}
                 alt={product.name}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-300"
                 onError={() => setImageError(true)}
+                unoptimized={productImage.startsWith('http')}
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="text-center">
-                  <Package className="h-20 w-20 mx-auto mb-3" style={{ color: '#7ED321' }} strokeWidth={1.5} />
-                  <div className="space-y-2 px-4">
-                    <div className="h-2 rounded-full w-24 mx-auto animate-pulse" style={{ backgroundColor: '#9FE834' }}></div>
-                    <div className="h-2 rounded-full w-16 mx-auto animate-pulse" style={{ backgroundColor: '#D1D5DB' }}></div>
+              <div className="w-full h-full flex items-center justify-center relative overflow-hidden">
+                {/* Animated gradient background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-white to-green-100 animate-pulse"></div>
+
+                {/* Decorative circles */}
+                <div className="absolute top-4 right-4 w-20 h-20 rounded-full bg-green-100 opacity-50"></div>
+                <div className="absolute bottom-6 left-6 w-16 h-16 rounded-full bg-green-50 opacity-50"></div>
+
+                {/* Icon and text */}
+                <div className="text-center relative z-10">
+                  {getPlaceholderIcon()}
+                  <p className="mt-4 text-sm font-medium text-gray-400">Image non disponible</p>
+                  <div className="space-y-2 px-4 mt-3">
+                    <div className="h-1.5 rounded-full w-20 mx-auto animate-pulse" style={{ backgroundColor: 'rgba(126, 211, 33, 0.3)' }}></div>
+                    <div className="h-1.5 rounded-full w-12 mx-auto animate-pulse" style={{ backgroundColor: 'rgba(126, 211, 33, 0.2)' }}></div>
                   </div>
                 </div>
               </div>
@@ -73,7 +132,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
             {/* Badges */}
             <div className="absolute top-2 left-2 flex flex-col space-y-1">
-              {product.isOnSale && (
+              {product.isOnPromo && (
                 <span
                   className="bg-error text-white text-xs rounded-md font-medium flex items-center"
                   style={{
@@ -97,12 +156,12 @@ const ProductCard = ({ product }: ProductCardProps) => {
               )}
             </div>
 
-            {/* Action Buttons - Show on Hover */}
+            {/* Action Buttons - Always show on mobile, hover on desktop */}
             <div className={`absolute top-2 right-2 flex flex-col space-y-2 transition-opacity duration-300 ${
-              isHovered ? 'opacity-100' : 'opacity-0'
+              isHovered ? 'opacity-100' : 'lg:opacity-0 opacity-100'
             }`}>
               <button
-                onClick={() => setIsWishlisted(!isWishlisted)}
+                onClick={handleToggleWishlist}
                 className={`p-2 rounded-full shadow-md transition-colors ${
                   isWishlisted
                     ? 'bg-primary text-white'
@@ -112,7 +171,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
                 <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-current' : ''}`} />
               </button>
               <button
-                onClick={() => window.location.href = `/produit/${product.id}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  window.location.href = `/produits/${product.slug}`;
+                }}
                 className="p-2 bg-white text-gray rounded-full shadow-md hover:bg-primary hover:text-white transition-colors"
               >
                 <Eye className="h-4 w-4" />
@@ -121,11 +184,12 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </div>
         </Link>
 
-        {/* Quick Add to Cart - Show on Hover */}
-        <div className={`absolute bottom-0 left-0 right-0 transform transition-transform duration-300 ${
+        {/* Quick Add to Cart - Desktop only (hover) */}
+        <div className={`hidden lg:block absolute bottom-0 left-0 right-0 transform transition-transform duration-300 ${
           isHovered ? 'translate-y-0' : 'translate-y-full'
         }`}>
           <button
+            onClick={handleAddToCart}
             disabled={!product.inStock}
             className="w-full bg-primary text-white py-2 px-4 font-medium hover:bg-secondary-green disabled:bg-gray disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
           >
@@ -137,62 +201,50 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
       {/* Product Info */}
       <div className="p-4">
-        {/* Brand & Category */}
+        {/* Brand & Reference */}
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-medium text-gray-700 bg-accent-green/20 px-2 py-1 rounded">
-            {product.brand}
+            {product.brand?.name || 'Sans marque'}
           </span>
-          <span className="text-xs text-gray-500">{product.category}</span>
+          <span className="text-xs text-gray-500">{product.reference}</span>
         </div>
 
         {/* Product Name */}
-        <Link href={`/produit/${product.id}`}>
+        <Link href={`/produits/${product.slug}`}>
           <h3 className="font-semibold text-sm text-gray-800 mb-2 line-clamp-2 hover:text-primary transition-colors">
             {product.name}
           </h3>
         </Link>
 
-        {/* Description */}
-        <p className="text-xs text-gray-500 mb-3 line-clamp-2">
-          {product.description}
-        </p>
-
-        {/* Rating */}
-        <div className="flex items-center space-x-1 mb-3">
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                className={`h-3 w-3 ${
-                  i < Math.floor(product.rating)
-                    ? 'text-yellow-400 fill-current'
-                    : 'text-gray-300'
-                }`}
-              />
-            ))}
-          </div>
-          <span className="text-xs text-gray-500">
-            {product.rating} ({product.reviewCount})
-          </span>
+        {/* Stock Status */}
+        <div className="mb-3">
+          {product.inStock ? (
+            <span className="text-xs text-green-600">
+              En stock ({product.stockQuantity} disponibles)
+            </span>
+          ) : (
+            <span className="text-xs text-red-600">Rupture de stock</span>
+          )}
         </div>
 
         {/* Price */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <span className="font-bold text-gray-900">
-              {formatPrice(product.price)}
+              {formatPrice(displayPrice)}
             </span>
-            {product.originalPrice && (
+            {originalPrice && (
               <span className="text-xs text-gray-400 line-through">
-                {formatPrice(product.originalPrice)}
+                {formatPrice(originalPrice)}
               </span>
             )}
           </div>
 
-          {/* Mobile Add to Cart */}
+          {/* Mobile Add to Cart Icon */}
           <button
+            onClick={handleAddToCart}
             disabled={!product.inStock}
-            className="md:hidden p-2 bg-primary text-white rounded-full hover:bg-secondary-green disabled:bg-gray disabled:cursor-not-allowed transition-colors"
+            className="lg:hidden p-2 bg-primary text-white rounded-full hover:bg-secondary-green disabled:bg-gray disabled:cursor-not-allowed transition-colors"
           >
             <ShoppingCart className="h-4 w-4" />
           </button>

@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Mail, Lock, User, Phone, Eye, EyeOff, UserPlus, MapPin } from 'lucide-react';
+import { FcGoogle } from 'react-icons/fc';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -48,6 +50,19 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    setError('');
+    try {
+      // Use a special callback URL that will handle role-based redirect
+      await signIn('google', { callbackUrl: '/auth/callback' });
+    } catch (error) {
+      setError('Une erreur est survenue avec Google. Veuillez réessayer.');
+      setIsGoogleLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -165,6 +180,56 @@ export default function RegisterPage() {
             {error}
           </div>
         )}
+
+        {/* Google Sign In Button */}
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          disabled={isGoogleLoading || isLoading}
+          style={{
+            width: '100%',
+            padding: '0.875rem',
+            background: 'white',
+            color: '#374151',
+            border: '2px solid #E5E7EB',
+            borderRadius: '0.75rem',
+            fontSize: '1rem',
+            fontWeight: '600',
+            cursor: isGoogleLoading || isLoading ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.75rem',
+            transition: 'all 0.2s',
+            marginBottom: '1.5rem',
+          }}
+          onMouseEnter={(e) => {
+            if (!isGoogleLoading && !isLoading) {
+              e.currentTarget.style.borderColor = '#7ED321';
+              e.currentTarget.style.background = '#F9FAFB';
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = '#E5E7EB';
+            e.currentTarget.style.background = 'white';
+          }}
+        >
+          {isGoogleLoading ? (
+            "Inscription avec Google..."
+          ) : (
+            <>
+              <FcGoogle style={{ width: '1.5rem', height: '1.5rem' }} />
+              S&apos;inscrire avec Google
+            </>
+          )}
+        </button>
+
+        {/* Divider */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+          <div style={{ flex: 1, height: '1px', background: '#E5E7EB' }} />
+          <span style={{ fontSize: '0.875rem', color: '#6B7280', fontWeight: '500' }}>OU</span>
+          <div style={{ flex: 1, height: '1px', background: '#E5E7EB' }} />
+        </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>

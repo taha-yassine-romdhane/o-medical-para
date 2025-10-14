@@ -95,68 +95,76 @@ model Brand {
 
 // Product Model
 model Product {
-  id              String   @id @default(cuid())
-  name            String
-  slug            String   @unique
-  description     String?
+  id               String  @id @default(cuid())
+  reference        String  @unique // e.g., "00001", "00002"
+  name             String
+  slug             String  @unique
+  description      String?
   shortDescription String?
-  sku             String?  @unique
-  barcode         String?  @unique
+  sku              String? @unique
+  barcode          String? @unique
 
   // Pricing
-  price           Float
+  price           Float // Prix TTC (Price with tax)
+  priceHT         Float? // Prix HT (Price without tax)
+  promoPrice      Float? // Price after promo discount
+  promoPercentage Int? // Promo discount percentage (0-100)
+  isOnPromo       Boolean @default(false)
   originalPrice   Float?
   costPrice       Float?
 
   // Inventory
-  inStock         Boolean  @default(true)
-  stockQuantity   Int      @default(0)
-  lowStockAlert   Int      @default(10)
+  inStock       Boolean @default(true)
+  stockQuantity Int     @default(0)
+  lowStockAlert Int     @default(10)
 
   // Product Details
-  weight          Float?
-  dimensions      String?
-  ingredients     String?
-  usage           String?
-  warnings        String?
+  weight      Float?
+  dimensions  String?
+  ingredients String?
+  usage       String?
+  warnings    String?
 
   // SEO & Marketing
   metaTitle       String?
   metaDescription String?
 
   // Status
-  isActive        Boolean  @default(true)
-  isFeatured      Boolean  @default(false)
-  isOnSale        Boolean  @default(false)
+  isActive   Boolean @default(true)
+  isFeatured Boolean @default(false)
+  isOnSale   Boolean @default(false)
 
   // Timestamps
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  categoryId    String?
-  category      Category?   @relation(fields: [categoryId], references: [id])
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
 
-  familyId      String?
-  family        Family?     @relation(fields: [familyId], references: [id])
+  familyId String?
+  family   Family? @relation(fields: [familyId], references: [id])
 
-  subfamilyId   String?
-  subfamily     Subfamily?  @relation(fields: [subfamilyId], references: [id])
+  subfamilyId String?
+  subfamily   Subfamily? @relation(fields: [subfamilyId], references: [id])
 
-  brandId       String?
-  brand         Brand?      @relation(fields: [brandId], references: [id])
+  brandId String?
+  brand   Brand?  @relation(fields: [brandId], references: [id])
 
   // Product images
-  images        ProductImage[]
+  images ProductImage[]
 
   // Product reviews
-  reviews       Review[]
+  reviews Review[]
 
   // Cart items
-  cartItems     CartItem[]
+  cartItems CartItem[]
 
   // Order items
-  orderItems    OrderItem[]
+  orderItems OrderItem[]
+
+  // Pack items
+  packItems PackItem[]
 
   @@map("products")
 }
@@ -183,16 +191,19 @@ model User {
   email       String    @unique
   firstName   String
   lastName    String
-  phone       String
-  region      String
+  phone       String?
+  region      String?
   dateOfBirth DateTime?
   gender      String?
 
   // Authentication
-  password    String
-  role        UserRole  @default(CLIENT)
-  isVerified  Boolean   @default(false)
-  isActive    Boolean   @default(true)
+  password   String?
+  role       UserRole @default(CLIENT)
+  isVerified Boolean  @default(false)
+  isActive   Boolean  @default(true)
+
+  // Fidelity Points
+  fidelityPoints Int @default(0) // Total available points
 
   // Timestamps
   createdAt   DateTime  @default(now())
@@ -200,48 +211,97 @@ model User {
   lastLoginAt DateTime?
 
   // Relations
-  addresses   Address[]
-  reviews     Review[]
-  cart        Cart?
-  orders      Order[]
+  addresses        Address[]
+  reviews          Review[]
+  cart             Cart?
+  orders           Order[]
+  accounts         Account[]
+  sessions         Session[]
+  searchHistory    SearchHistory[]
+  fidelityHistory  FidelityPointHistory[]
 
   @@map("users")
 }
 
+// Account Model (for OAuth providers)
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+// Session Model (for NextAuth)
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// Verification Token Model (for email verification)
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
 // Address Model
 model Address {
-  id          String  @id @default(cuid())
+  id          String   @id @default(cuid())
+  label       String // e.g., "Maison", "Bureau", etc.
   firstName   String
   lastName    String
   company     String?
-  address1    String
+  address     String // Full address (previously address1)
   address2    String?
   city        String
-  state       String?
+  governorate String // Tunisian governorate (previously state)
   postalCode  String
-  country     String  @default("Tunisia")
+  country     String   @default("Tunisia")
   phone       String?
-  isDefault   Boolean @default(false)
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
-  userId      String
-  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  orders      Order[]
+  orders Order[]
 
   @@map("addresses")
 }
 
 // Cart Model
 model Cart {
-  id        String     @id @default(cuid())
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  userId    String     @unique
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items     CartItem[]
+  userId String     @unique
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items  CartItem[]
 
   @@map("carts")
 }
@@ -252,8 +312,8 @@ model CartItem {
   quantity Int    @default(1)
 
   // Relations
-  cartId    String
-  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  cartId String
+  cart   Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
 
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -264,16 +324,16 @@ model CartItem {
 
 // Review Model
 model Review {
-  id        String   @id @default(cuid())
-  rating    Int      // 1-5 stars
-  title     String?
-  comment   String?
-  isVerified Boolean @default(false)
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  rating     Int // 1-5 stars
+  title      String?
+  comment    String?
+  isVerified Boolean  @default(false)
+  createdAt  DateTime @default(now())
 
   // Relations
-  userId    String
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -284,16 +344,16 @@ model Review {
 
 // Order Model
 model Order {
-  id            String      @id @default(cuid())
-  orderNumber   String      @unique
-  status        OrderStatus @default(PENDING)
+  id          String      @id @default(cuid())
+  orderNumber String      @unique
+  status      OrderStatus @default(PENDING)
 
   // Totals
-  subtotal      Float
-  taxAmount     Float       @default(0)
-  shippingCost  Float       @default(0)
-  discount      Float       @default(0)
-  total         Float
+  subtotal     Float
+  taxAmount    Float @default(0)
+  shippingCost Float @default(0)
+  discount     Float @default(0)
+  total        Float
 
   // Payment
   paymentMethod String?
@@ -307,20 +367,21 @@ model Order {
   deliveredAt    DateTime?
 
   // Notes
-  notes         String?
+  notes String?
 
   // Timestamps
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  userId        String
-  user          User        @relation(fields: [userId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 
-  addressId     String
-  address       Address     @relation(fields: [addressId], references: [id])
+  addressId String
+  address   Address @relation(fields: [addressId], references: [id])
 
-  items         OrderItem[]
+  items                OrderItem[]
+  fidelityPointHistory FidelityPointHistory[]
 
   @@map("orders")
 }
@@ -333,13 +394,29 @@ model OrderItem {
   total     Float
 
   // Relations
-  orderId   String
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   productId String
   product   Product @relation(fields: [productId], references: [id])
 
   @@map("order_items")
+}
+
+// Contact Message Model
+model ContactMessage {
+  id        String               @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  message   String
+  status    ContactMessageStatus @default(NEW)
+  isRead    Boolean              @default(false)
+  notes     String? // Admin notes
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  @@map("contact_messages")
 }
 
 // Enums
@@ -365,4 +442,130 @@ enum PaymentStatus {
   FAILED
   CANCELLED
   REFUNDED
+}
+
+enum ContactMessageStatus {
+  NEW
+  IN_PROGRESS
+  RESOLVED
+  ARCHIVED
+}
+
+// Hero Slider Model
+model HeroSlider {
+  id        String   @id @default(cuid())
+  image     String // Image URL
+  url       String? // Link URL when slider is clicked
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("hero_sliders")
+}
+
+// Event Model - Simplified slider with timezone scheduling
+model Event {
+  id          String    @id @default(cuid())
+  image       String // Image URL
+  url         String? // Link URL when event is clicked
+
+  // Timezone scheduling - when to display this event
+  startDate   DateTime // When to start showing this event
+  endDate     DateTime // When to stop showing this event
+
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("events")
+}
+
+// Pack Model - Bundle of products sold together
+model Pack {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+  image       String // Pack image URL
+
+  // Pricing
+  packPrice  Float // Special price for the pack
+  totalPrice Float // Sum of individual product prices
+
+  // Status
+  isActive   Boolean @default(true)
+  isFeatured Boolean @default(false)
+  sortOrder  Int     @default(0)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  items PackItem[]
+
+  @@map("packs")
+}
+
+// Pack Item Model - Products included in a pack
+model PackItem {
+  id       String @id @default(cuid())
+  quantity Int    @default(1)
+
+  // Relations
+  packId String
+  pack   Pack   @relation(fields: [packId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([packId, productId])
+  @@map("pack_items")
+}
+
+// Search History Model - Track user search queries
+model SearchHistory {
+  id        String   @id @default(cuid())
+  query     String // Search query text
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("search_history")
+}
+
+// Fidelity Point History Model - Track all point transactions
+model FidelityPointHistory {
+  id          String              @id @default(cuid())
+  points      Int // Positive for earning, negative for spending
+  type        FidelityPointType // Type of transaction
+  description String // Description of the transaction
+  reference   String? // Order number or admin reference
+  createdAt   DateTime            @default(now())
+  createdBy   String? // Admin user ID if manually added
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  orderId String? // Link to order if points from purchase
+  order   Order?  @relation(fields: [orderId], references: [id])
+
+  @@index([userId, createdAt])
+  @@map("fidelity_point_history")
+}
+
+// Fidelity Point Transaction Types
+enum FidelityPointType {
+  EARNED_PURCHASE // Points earned from completed order
+  MANUAL_ADD // Manually added by admin (in-store purchase)
+  MANUAL_DEDUCT // Manually deducted by admin
+  REDEEMED // Points spent/redeemed
+  EXPIRED // Points expired
+  REFUND // Points refunded from cancelled order
 }

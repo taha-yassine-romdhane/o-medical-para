@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from "next/image";
 import Link from "next/link";
-import { Phone, Mail, MapPin, Clock, Heart } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, Heart, Facebook, Instagram } from "lucide-react";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -11,8 +11,8 @@ const Footer = () => {
 
   const navigationLinks = [
     { href: "/produits", label: "Nos Produits" },
+    { href: "/packs", label: "Nos Packs" },
     { href: "/promotions", label: "Promotions" },
-    { href: "/marques", label: "Marques" },
     { href: "/conseils", label: "Conseils Santé" },
   ];
 
@@ -24,20 +24,35 @@ const Footer = () => {
   ];
 
   const contactInfo = [
-    { icon: Phone, text: "+216 XX XXX XXX" },
+    { icon: Phone, text: "+216 53 000 666" },
     { icon: Mail, text: "contact@omedical-para.tn" },
     { icon: MapPin, text: "Sousse, Tunisie" },
-    { icon: Clock, text: "7j/7 - 24h/24" },
+    { icon: Clock, text: "7j/7 de 9h à 20h" },
+  ];
+
+  const socialMediaLinks = [
+    {
+      icon: Facebook,
+      url: 'https://www.facebook.com/OMedicalStoreMsaken',
+      label: 'Facebook',
+      color: '#1877F2'
+    },
+    {
+      icon: Instagram,
+      url: 'https://www.instagram.com/omedical_store',
+      label: 'Instagram',
+      color: '#E1306C'
+    }
   ];
 
   return (
     <footer
       style={{
-        background: 'linear-gradient(135deg, #1F4D1A 0%, #2D5F2A 100%)',
-        color: 'white',
+        background: 'white',
+        color: '#1F2937',
         paddingTop: '3rem',
         paddingBottom: '2rem',
-        borderTop: '1px solid rgba(126, 211, 33, 0.2)'
+        borderTop: '2px solid #E5E7EB'
       }}
     >
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1.5rem' }}>
@@ -80,9 +95,42 @@ const Footer = () => {
                 }}
               />
             </Link>
-            <p style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.85)', lineHeight: '1.6' }}>
+            <p style={{ fontSize: '0.875rem', color: '#6B7280', lineHeight: '1.6', marginBottom: '1.5rem' }}>
               Votre parapharmacie de confiance en Tunisie. Qualité, expertise et service client d&apos;exception.
             </p>
+            <div className="flex space-x-6 mt-4">
+              {socialMediaLinks.map((social, index) => (
+                <a
+                  key={index}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.label}
+                  className="p-3 rounded-full transition-all duration-300"
+                  style={{
+                    color: '#4A4A4A',
+                    backgroundColor: '#F3F4F6',
+                    width: '44px',
+                    height: '44px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = social.color;
+                    e.currentTarget.style.color = 'white';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#F3F4F6';
+                    e.currentTarget.style.color = '#4A4A4A';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <social.icon size={24} />
+                </a>
+              ))}
+            </div>
           </div>
 
           {/* Navigation */}
@@ -91,10 +139,10 @@ const Footer = () => {
               style={{
                 fontWeight: '700',
                 fontSize: '1.125rem',
-                color: 'white',
+                color: '#1F2937',
                 marginBottom: '1.5rem',
                 paddingBottom: '0.5rem',
-                borderBottom: '2px solid rgba(126, 211, 33, 0.3)'
+                borderBottom: '2px solid #E5E7EB'
               }}
             >
               Navigation
@@ -107,7 +155,7 @@ const Footer = () => {
                     onMouseEnter={() => setHoveredLink(`nav-${index}`)}
                     onMouseLeave={() => setHoveredLink(null)}
                     style={{
-                      color: hoveredLink === `nav-${index}` ? '#7ED321' : 'rgba(255, 255, 255, 0.8)',
+                      color: hoveredLink === `nav-${index}` ? '#7ED321' : '#6B7280',
                       backgroundColor: hoveredLink === `nav-${index}` ? 'rgba(126, 211, 33, 0.1)' : 'transparent',
                       padding: '0.5rem 0.75rem',
                       borderRadius: '0.5rem',
@@ -131,10 +179,10 @@ const Footer = () => {
               style={{
                 fontWeight: '700',
                 fontSize: '1.125rem',
-                color: 'white',
+                color: '#1F2937',
                 marginBottom: '1.5rem',
                 paddingBottom: '0.5rem',
-                borderBottom: '2px solid rgba(126, 211, 33, 0.3)'
+                borderBottom: '2px solid #E5E7EB'
               }}
             >
               Service Client
@@ -147,7 +195,7 @@ const Footer = () => {
                     onMouseEnter={() => setHoveredLink(`service-${index}`)}
                     onMouseLeave={() => setHoveredLink(null)}
                     style={{
-                      color: hoveredLink === `service-${index}` ? '#7ED321' : 'rgba(255, 255, 255, 0.8)',
+                      color: hoveredLink === `service-${index}` ? '#7ED321' : '#6B7280',
                       backgroundColor: hoveredLink === `service-${index}` ? 'rgba(126, 211, 33, 0.1)' : 'transparent',
                       padding: '0.5rem 0.75rem',
                       borderRadius: '0.5rem',
@@ -171,10 +219,10 @@ const Footer = () => {
               style={{
                 fontWeight: '700',
                 fontSize: '1.125rem',
-                color: 'white',
+                color: '#1F2937',
                 marginBottom: '1.5rem',
                 paddingBottom: '0.5rem',
-                borderBottom: '2px solid rgba(126, 211, 33, 0.3)'
+                borderBottom: '2px solid #E5E7EB'
               }}
             >
               Contact
@@ -186,7 +234,7 @@ const Footer = () => {
                   <div key={index} style={{ display: 'flex', alignItems: 'center' }}>
                     <div
                       style={{
-                        background: 'rgba(126, 211, 33, 0.2)',
+                        background: 'rgba(126, 211, 33, 0.15)',
                         padding: '0.5rem',
                         borderRadius: '0.5rem',
                         marginRight: '0.75rem',
@@ -197,7 +245,7 @@ const Footer = () => {
                     >
                       <IconComponent style={{ width: '1rem', height: '1rem', color: '#7ED321' }} />
                     </div>
-                    <span style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '0.875rem', fontWeight: '500' }}>
+                    <span style={{ color: '#4A4A4A', fontSize: '0.875rem', fontWeight: '500' }}>
                       {contact.text}
                     </span>
                   </div>
@@ -209,7 +257,7 @@ const Footer = () => {
 
         <div
           style={{
-            borderTop: '1px solid rgba(126, 211, 33, 0.3)',
+            borderTop: '2px solid #E5E7EB',
             marginTop: '3rem',
             paddingTop: '2rem',
             textAlign: 'center'
@@ -217,18 +265,18 @@ const Footer = () => {
         >
           <div
             style={{
-              background: 'rgba(126, 211, 33, 0.1)',
+              background: '#F9FAFB',
               borderRadius: '0.75rem',
               padding: '1.25rem',
-              backdropFilter: 'blur(10px)'
+              border: '1px solid #E5E7EB'
             }}
           >
-            <p style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '0.875rem', fontWeight: '500' }}>
+            <p style={{ color: '#4A4A4A', fontSize: '0.875rem', fontWeight: '500' }}>
               © {currentYear} Medical Store Parapharmacie. Tous droits réservés.
             </p>
             <p
               style={{
-                color: '#9FE834',
+                color: '#7ED321',
                 fontSize: '0.875rem',
                 marginTop: '0.5rem',
                 fontWeight: '600',
@@ -239,7 +287,7 @@ const Footer = () => {
               }}
             >
               Votre santé, notre engagement
-              <Heart style={{ width: '1rem', height: '1rem', fill: '#9FE834' }} />
+              <Heart style={{ width: '1rem', height: '1rem', fill: '#7ED321' }} />
             </p>
           </div>
         </div>

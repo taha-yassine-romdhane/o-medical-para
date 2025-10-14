@@ -139,6 +139,56 @@ export default function CategoriesPage() {
     fetchCategories();
   };
 
+  const handleDeleteFamily = async (family: Family) => {
+    if (family._count.products > 0 || family._count.subfamilies > 0) {
+      alert('Impossible de supprimer une famille contenant des produits ou des sous-familles');
+      return;
+    }
+
+    if (confirm(`Êtes-vous sûr de vouloir supprimer la famille "${family.name}" ?`)) {
+      try {
+        const response = await fetch(`/api/families/${family.id}`, {
+          method: 'DELETE',
+        });
+
+        if (response.ok) {
+          fetchCategories();
+        } else {
+          const data = await response.json();
+          alert(data.error || 'Erreur lors de la suppression');
+        }
+      } catch (error) {
+        console.error('Error deleting family:', error);
+        alert('Erreur lors de la suppression');
+      }
+    }
+  };
+
+  const handleDeleteSubfamily = async (subfamily: Subfamily) => {
+    if (subfamily._count.products > 0) {
+      alert('Impossible de supprimer une sous-famille contenant des produits');
+      return;
+    }
+
+    if (confirm(`Êtes-vous sûr de vouloir supprimer la sous-famille "${subfamily.name}" ?`)) {
+      try {
+        const response = await fetch(`/api/subfamilies/${subfamily.id}`, {
+          method: 'DELETE',
+        });
+
+        if (response.ok) {
+          fetchCategories();
+        } else {
+          const data = await response.json();
+          alert(data.error || 'Erreur lors de la suppression');
+        }
+      } catch (error) {
+        console.error('Error deleting subfamily:', error);
+        alert('Erreur lors de la suppression');
+      }
+    }
+  };
+
   const handleExportExcel = () => {
     // Create data for Excel export
     const data: any[] = [];
@@ -789,25 +839,65 @@ export default function CategoriesPage() {
                             >
                               <Edit className="h-3 w-3" />
                             </button>
+                            <button
+                              onClick={() => handleDeleteFamily(item.family)}
+                              disabled={item.family._count.products > 0 || item.family._count.subfamilies > 0}
+                              style={{
+                                padding: '0.375rem 0.75rem',
+                                background: (item.family._count.products > 0 || item.family._count.subfamilies > 0) ? '#F3F4F6' : '#FEE2E2',
+                                color: (item.family._count.products > 0 || item.family._count.subfamilies > 0) ? '#9CA3AF' : '#DC2626',
+                                border: 'none',
+                                borderRadius: '0.375rem',
+                                fontSize: '0.75rem',
+                                cursor: (item.family._count.products > 0 || item.family._count.subfamilies > 0) ? 'not-allowed' : 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                                opacity: (item.family._count.products > 0 || item.family._count.subfamilies > 0) ? 0.5 : 1,
+                              }}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </button>
                           </>
                         ) : (
-                          <button
-                            onClick={() => handleEditSubfamily(item.subfamily!)}
-                            style={{
-                              padding: '0.375rem 0.75rem',
-                              background: '#F3F4F6',
-                              color: '#4A4A4A',
-                              border: 'none',
-                              borderRadius: '0.375rem',
-                              fontSize: '0.75rem',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.25rem',
-                            }}
-                          >
-                            <Edit className="h-3 w-3" />
-                          </button>
+                          <>
+                            <button
+                              onClick={() => handleEditSubfamily(item.subfamily!)}
+                              style={{
+                                padding: '0.375rem 0.75rem',
+                                background: '#F3F4F6',
+                                color: '#4A4A4A',
+                                border: 'none',
+                                borderRadius: '0.375rem',
+                                fontSize: '0.75rem',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                              }}
+                            >
+                              <Edit className="h-3 w-3" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteSubfamily(item.subfamily!)}
+                              disabled={item.subfamily!._count.products > 0}
+                              style={{
+                                padding: '0.375rem 0.75rem',
+                                background: item.subfamily!._count.products > 0 ? '#F3F4F6' : '#FEE2E2',
+                                color: item.subfamily!._count.products > 0 ? '#9CA3AF' : '#DC2626',
+                                border: 'none',
+                                borderRadius: '0.375rem',
+                                fontSize: '0.75rem',
+                                cursor: item.subfamily!._count.products > 0 ? 'not-allowed' : 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                                opacity: item.subfamily!._count.products > 0 ? 0.5 : 1,
+                              }}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </button>
+                          </>
                         )}
                       </div>
                     </td>
@@ -1101,6 +1191,22 @@ export default function CategoriesPage() {
                             >
                               <Edit className="h-3.5 w-3.5" />
                             </button>
+                            <button
+                              onClick={() => handleDeleteFamily(family)}
+                              disabled={family._count.products > 0 || family._count.subfamilies > 0}
+                              style={{
+                                padding: '0.375rem 0.75rem',
+                                background: (family._count.products > 0 || family._count.subfamilies > 0) ? '#F3F4F6' : '#FEE2E2',
+                                color: (family._count.products > 0 || family._count.subfamilies > 0) ? '#9CA3AF' : '#DC2626',
+                                border: 'none',
+                                borderRadius: '0.5rem',
+                                fontSize: '0.8125rem',
+                                cursor: (family._count.products > 0 || family._count.subfamilies > 0) ? 'not-allowed' : 'pointer',
+                                opacity: (family._count.products > 0 || family._count.subfamilies > 0) ? 0.5 : 1,
+                              }}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
                           </div>
                         </div>
 
@@ -1138,20 +1244,38 @@ export default function CategoriesPage() {
                                     ({subfamily._count.products} produit{subfamily._count.products !== 1 ? 's' : ''})
                                   </span>
                                 </div>
-                                <button
-                                  onClick={() => handleEditSubfamily(subfamily)}
-                                  style={{
-                                    padding: '0.25rem 0.5rem',
-                                    background: 'white',
-                                    color: '#4A4A4A',
-                                    border: '1px solid #E5E7EB',
-                                    borderRadius: '0.375rem',
-                                    fontSize: '0.75rem',
-                                    cursor: 'pointer',
-                                  }}
-                                >
-                                  <Edit className="h-3 w-3" />
-                                </button>
+                                <div style={{ display: 'flex', gap: '0.375rem' }}>
+                                  <button
+                                    onClick={() => handleEditSubfamily(subfamily)}
+                                    style={{
+                                      padding: '0.25rem 0.5rem',
+                                      background: 'white',
+                                      color: '#4A4A4A',
+                                      border: '1px solid #E5E7EB',
+                                      borderRadius: '0.375rem',
+                                      fontSize: '0.75rem',
+                                      cursor: 'pointer',
+                                    }}
+                                  >
+                                    <Edit className="h-3 w-3" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteSubfamily(subfamily)}
+                                    disabled={subfamily._count.products > 0}
+                                    style={{
+                                      padding: '0.25rem 0.5rem',
+                                      background: subfamily._count.products > 0 ? '#F3F4F6' : '#FEE2E2',
+                                      color: subfamily._count.products > 0 ? '#9CA3AF' : '#DC2626',
+                                      border: subfamily._count.products > 0 ? '1px solid #E5E7EB' : 'none',
+                                      borderRadius: '0.375rem',
+                                      fontSize: '0.75rem',
+                                      cursor: subfamily._count.products > 0 ? 'not-allowed' : 'pointer',
+                                      opacity: subfamily._count.products > 0 ? 0.5 : 1,
+                                    }}
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </button>
+                                </div>
                               </div>
                             ))}
                           </div>

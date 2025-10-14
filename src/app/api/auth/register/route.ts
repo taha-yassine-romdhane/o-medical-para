@@ -8,8 +8,8 @@ const registerSchema = z.object({
   password: z.string().min(6),
   firstName: z.string().min(2),
   lastName: z.string().min(2),
-  phone: z.string().min(8),
-  region: z.string().min(2),
+  phone: z.string().min(8).optional(),
+  region: z.string().min(2).optional(),
 });
 
 export async function POST(request: Request) {
