@@ -44,3 +44,6 @@ next-env.d.ts
 
 # product images
 public/product_images_v7/
+
+# utility scripts (one-time usage)
+scripts/
