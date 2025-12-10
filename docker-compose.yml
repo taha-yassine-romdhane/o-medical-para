@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: o-medical-para
+    restart: unless-stopped
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+      - AUTH_SECRET=${AUTH_SECRET}
+      - AUTH_URL=${AUTH_URL}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./public/product_images_v7:/app/public/product_images_v7:ro
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
